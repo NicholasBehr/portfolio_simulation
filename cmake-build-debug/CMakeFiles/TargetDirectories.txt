@@ -1,3 +1,0 @@
-C:/Users/Nicholas/CLionProjects/portfolio_simulation/cmake-build-debug/CMakeFiles/portfolio_simulation.dir
-C:/Users/Nicholas/CLionProjects/portfolio_simulation/cmake-build-debug/CMakeFiles/edit_cache.dir
-C:/Users/Nicholas/CLionProjects/portfolio_simulation/cmake-build-debug/CMakeFiles/rebuild_cache.dir
