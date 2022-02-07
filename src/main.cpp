@@ -6,5 +6,7 @@ int main() {
     std::cout << "Hello, World!" << std::endl;
 
     std::cout << test.getMonth() << std::endl;
+
+    std::cout << test.getYear() << std::endl;
     return 0;
 }
