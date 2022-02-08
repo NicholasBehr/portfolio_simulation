@@ -3,5 +3,17 @@ project(portfolio_simulation)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(portfolio_simulation src/main.cpp src/portfolio.cpp include/portfolio.h)
-include_directories( ./src/include )
+add_executable(
+        portfolio_simulation
+        src/main.cpp
+
+        src/portfolio.cpp
+        include/portfolio.h
+
+        src/stocks.cpp
+        include/stocks.h
+)
+
+include_directories(
+        ./src/include
+)
