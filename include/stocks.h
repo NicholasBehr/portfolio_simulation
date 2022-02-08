@@ -22,16 +22,16 @@ class Stocks
 
         void rebalance();
 
-
     private:
         float cash;                 //How much cash is at brokerage account?
         int number_of_stocks;       //How many stock types exist?
         int *stock_count;           //How many stocks are held of each type?
         float *stock_value;         //What is the value of each different stock type?
         float *stock_allocation;    //What is the target weight of each stock type?
-        int *stock_count_desired;   //How many stocks should be held of each type to align with allocation?
 
-        float getDistance(float cash_available);
+        float minimum_cost;         //Used in rebalance_recursive to evaluate a stock_count_desired
+        int *stock_count_desired;   //Used in rebalance_recursive to hold a proposed stock count
+        void rebalance_recursive(int dimension, float total_value, float remaining_value, float previous_cost);
 };
 
 #endif //PORTFOLIO_SIMULATION_STOCKS_H

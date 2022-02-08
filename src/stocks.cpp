@@ -60,70 +60,42 @@ Stocks::~Stocks()
 float Stocks::getValue()
 {
     float value = cash;
-    for(int i = 0; i < number_of_stocks; i++)
-    {
+    for(int i = 0; i < number_of_stocks; i++) {
         value += stock_count[i] * stock_value[i];
     }
     return value;
 }
 
-void Stocks::setAllocation(float *_stock_allocation)
-{
+void Stocks::setAllocation(float *_stock_allocation) {
     std::memcpy(stock_allocation, _stock_allocation, sizeof(float) * number_of_stocks);
 }
 
-void Stocks::rebalance()
-{
-    float already_allocated = 0;
-    float total_cash_available = this -> getValue();
-    float remaining_cash_available = total_cash_available;
+void Stocks::rebalance() {
+    minimum_cost = INFINITY;
+    float value = this->getValue();
+    this->rebalance_recursive(0, value, value, 0);
 
-    bool locked[number_of_stocks];
-    for ( int i = 0; i < number_of_stocks; ++i) locked[i] = false;
-
-    for (int k = 0; k < number_of_stocks; ++ k){
-        float min_dist  = INFINITY;
-        int min_index = 0;
-
-        for(int j = 0; j < number_of_stocks; j++) //decide which one to floor
-        {
-            if(locked[j]) continue;
-
-            float distance = 0;
-            float free_cash = fmodf((stock_allocation[j]/(1-already_allocated)) * remaining_cash_available, stock_value[j]);
-
-            for (int i = 0; i < number_of_stocks; i++)
-            {
-                if(locked[i]) continue;
-                float free_cash_portion = (i==j) ? -free_cash : free_cash * (stock_allocation[i]/(1-already_allocated-stock_allocation[j]));
-                distance += pow(stock_allocation[i] * total_cash_available - ((stock_allocation[i]/(1-already_allocated)) * remaining_cash_available + free_cash_portion),2); //budget - tatsaechlich
-            }
-
-            if (distance < min_dist)
-            {
-                min_dist = distance;
-                min_index = j;
-            }
-        }
-
-        stock_count_desired[min_index] = floor(remaining_cash_available * (stock_allocation[min_index]/(1-already_allocated)) / stock_value[min_index]);
-        remaining_cash_available -= stock_count_desired[min_index] * stock_value[min_index];
-        already_allocated += stock_allocation[min_index];
-        locked[min_index] = true;
+    std::cout << "result: " << std::endl;
+    for (int i = 0; i < number_of_stocks; ++i) {
+        std::cout << stock_count[i] << " ";
     }
-
-    for (int i = 0; i < number_of_stocks; i++)
-    {
-        std::cout << stock_count_desired[i] << std::endl;
-    }
+    std::cout << std::endl;
+    std::cout << "cost: " << minimum_cost << std::endl;
 }
 
-float Stocks::getDistance(float cash_available)
+void Stocks::rebalance_recursive(int dimension, float total_value , float remaining_value, float previous_cost)
 {
-    float distance = 0;
-    for(int i = 0; i < number_of_stocks; i++)
-    {
-        distance += pow(stock_allocation[i]*cash_available - stock_count_desired[i]*stock_value[i],2); //budget - planned expense
+    for(int amount = 0; amount <= remaining_value / stock_value[dimension]; ++amount) {
+        stock_count_desired[dimension] = amount;
+        float cost = previous_cost + pow(stock_allocation[dimension]*total_value/stock_value[dimension] - amount,2);
+        if(dimension + 1 < number_of_stocks ) {
+            this -> rebalance_recursive(dimension + 1, total_value, remaining_value - amount * stock_value[dimension], cost);
+        }
+        else {
+            if(cost < minimum_cost) {
+                std::memcpy(stock_count, stock_count_desired, sizeof(int) * number_of_stocks);
+                minimum_cost = cost;
+            }
+        }
     }
-    return distance;
 }
