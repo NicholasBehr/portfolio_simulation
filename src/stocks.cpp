@@ -66,36 +66,60 @@ float Stocks::getValue()
     return value;
 }
 
+void Stocks::getStockCountDesired()
+{
+    std::cout << "The desired stock count is: ( ";
+    for (int dimension = 0; dimension < number_of_stocks; ++dimension) {
+        std::cout << stock_count_desired[dimension] <<" ";
+    }
+    std::cout << ")" << std::endl;
+}
+
 void Stocks::setAllocation(float *_stock_allocation) {
     std::memcpy(stock_allocation, _stock_allocation, sizeof(float) * number_of_stocks);
 }
 
-void Stocks::rebalance() {
-    minimum_cost = INFINITY;
-    float value = this->getValue();
-    this->rebalance_recursive(0, value, value, 0);
+void Stocks::rebalance(){ //upto 15 stocks
+    float available_funds = this->getValue(); //cache of getValue()
+    float remaining_budget = available_funds; //left in wallet to buy additional stocks
 
-    std::cout << "result: " << std::endl;
-    for (int i = 0; i < number_of_stocks; ++i) {
-        std::cout << stock_count[i] << " ";
+    //stock_allocation[dimension] * available_funds / stock_value[dimension] is the theoretical optimum
+    //since we don't allow fractional shares, this value gets floored
+    int stock_count_floor[number_of_stocks];
+    for (int dimension = 0; dimension < number_of_stocks; ++dimension) {
+        stock_count_floor[dimension] = floor(stock_allocation[dimension] * available_funds / stock_value[dimension]);
+        remaining_budget -= stock_count_floor[dimension] * stock_value[dimension];
     }
-    std::cout << std::endl;
-    std::cout << "cost: " << minimum_cost << std::endl;
-}
 
-void Stocks::rebalance_recursive(int dimension, float total_value , float remaining_value, float previous_cost)
-{
-    for(int amount = 0; amount <= remaining_value / stock_value[dimension]; ++amount) {
-        stock_count_desired[dimension] = amount;
-        float cost = previous_cost + pow(stock_allocation[dimension]*total_value/stock_value[dimension] - amount,2);
-        if(dimension + 1 < number_of_stocks ) {
-            this -> rebalance_recursive(dimension + 1, total_value, remaining_value - amount * stock_value[dimension], cost);
-        }
-        else {
-            if(cost < minimum_cost) {
-                std::memcpy(stock_count, stock_count_desired, sizeof(int) * number_of_stocks);
-                minimum_cost = cost;
+    //the remaining funds can now be uses on further purchases to closer approach the optimum
+    //square_distance is the distance from this optimum and the current stock_count_desired ^2
+    unsigned short best_bit_flag = 0;
+    float best_square_distance = INFINITY;
+
+    //a hypercube is built around the optimum and the distance to all corners is checked,
+    //the minimum, which also fits into the available_funds is chosen
+    for (unsigned int bit_flag = 0; bit_flag < 0b1 << number_of_stocks; ++bit_flag) {
+        float square_distance = 0;
+        float required_additional_budget = 0;
+        for (int dimension = 0; dimension < number_of_stocks; ++dimension) {
+            if(bit_flag >> dimension & 0b1){
+                square_distance += powf( (stock_allocation[dimension] * available_funds / stock_value[dimension])
+                        - (stock_count_floor[dimension] + 1), 2);
+                required_additional_budget += stock_value[dimension];
+            }
+            else{
+                square_distance += powf( (stock_allocation[dimension] * available_funds / stock_value[dimension])
+                        - (stock_count_floor[dimension] + 0), 2);
             }
         }
+        if(required_additional_budget <= remaining_budget && square_distance <= best_square_distance){
+            best_bit_flag = bit_flag;
+            best_square_distance = square_distance;
+        }
+    }
+
+    //write the result of the computation to stock_count_desired
+    for (int dimension = 0; dimension < number_of_stocks; ++dimension) {
+        stock_count_desired[dimension] = (best_bit_flag >> dimension & 0b1) ? stock_count_floor[dimension] + 1 : stock_count_floor[dimension];
     }
 }
