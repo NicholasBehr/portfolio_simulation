@@ -23,8 +23,10 @@ class Stocks
         //Setter
         void setAllocation(float *_stock_allocation);
 
-        //Outputs a new desired stock count, optimally aligned with stock_allocation
+        //Update desired stock count, optimally aligned with stock_allocation
         void rebalance();
+
+        void simulate_month(float *growth_factor);
 
     private:
         float cash;                 //How much cash is at the brokerage account?

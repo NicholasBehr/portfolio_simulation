@@ -97,7 +97,7 @@ void Stocks::rebalance(){ //upto 15 stocks
     float best_square_distance = INFINITY;
 
     //a hypercube is built around the optimum and the distance to all corners is checked,
-    //the minimum, which also fits into the available_funds is chosen
+    //the minimum distance, which also fits into the remaining_budget is chosen
     for (unsigned int bit_flag = 0; bit_flag < 0b1 << number_of_stocks; ++bit_flag) {
         float square_distance = 0;
         float required_additional_budget = 0;

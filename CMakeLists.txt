@@ -12,7 +12,7 @@ add_executable(
 
         src/stocks.cpp
         include/stocks.h
-)
+        src/dataIngest.cpp include/dataIngest.h)
 
 include_directories(
         ./src/include
