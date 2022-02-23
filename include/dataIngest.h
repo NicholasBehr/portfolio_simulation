@@ -23,6 +23,7 @@ private:
     int number_of_stocks;
     int number_of_months;
     float **monthly_growth;
+
     std::mt19937_64 eng;
 };
 

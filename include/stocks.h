@@ -11,17 +11,17 @@ class Stocks
     public:
         //Constructor
         Stocks(int _number_of_stocks);
-        Stocks(float _cash, int _number_of_stocks, int *_initial_stock_count, float *_initial_stock_value);
+        Stocks(float _cash, int _number_of_stocks, int *_initial_stock_count, float *_initial_stock_value, float *_stock_allocation);
 
         //Destructor
         ~Stocks();
 
         //Getter
         float getValue();
-        void getStockCountDesired();
 
-        //Setter
-        void setAllocation(float *_stock_allocation);
+        //Print internal state
+        void printStockCountDesired();
+        void printStockCount();
 
         //Update desired stock count, optimally aligned with stock_allocation
         void rebalance();
